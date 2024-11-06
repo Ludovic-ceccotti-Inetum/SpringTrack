@@ -1,5 +1,6 @@
 package rewards.internal;
 
+import org.springframework.stereotype.Component;
 import rewards.AccountContribution;
 import rewards.Dining;
 import rewards.RewardConfirmation;
@@ -24,13 +25,13 @@ import common.money.MonetaryAmount;
  * for dining" use case.
  */
 
-/* TODO-03: Let this class to be found in component-scanning
+/*  Let this class to be found in component-scanning
  * - Annotate this class with an appropriate stereotype annotation
  *   to cause component-scanning to create a Spring bean from this class.
  * - Inject all 3 dependencies.  Decide if you should use field
  *   injection or constructor injection.
  */
-
+@Component
 public class RewardNetworkImpl implements RewardNetwork {
 
 	private AccountRepository accountRepository;
