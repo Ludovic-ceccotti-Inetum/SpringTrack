@@ -7,8 +7,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -22,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * to run in method name order using @FixMethodOrder(MethodSorters.NAME_ASCENDING)
  * in this particular testing scenario. (In general, you should not do this.)
  *
- * TODO-08: MAKE SURE to revert the propagation attribute back to
+ * to
  * REQUIRED in RewardNetworkImpl.
  *
- * TODO-09: Examine the @Test logic below. Note that committed results from the
+ *
  * first test will invalidate the assertions in the second test. Run this test,
  * at the class level so that both tests run it should fail. Do you know why?
  *
@@ -35,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { SystemTestConfig.class })
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Transactional// make sure db is rollbacked after each test run
 public class RewardNetworkSideEffectTests {
 
 	private static final String SAVINGS_SQL = "select SAVINGS from T_ACCOUNT_BENEFICIARY where NAME = ?";
@@ -88,7 +91,7 @@ public class RewardNetworkSideEffectTests {
 		assertEquals(Double.valueOf(corganInitialSavings + 4.00d),
 				jdbcTemplate.queryForObject(SAVINGS_SQL, Double.class, "Corgan"));
 	}
-
+	//@Commit using this would save the change of the first test method before running the second
 	@Test
 	public void testCollision1stTime() {
 		runTest();

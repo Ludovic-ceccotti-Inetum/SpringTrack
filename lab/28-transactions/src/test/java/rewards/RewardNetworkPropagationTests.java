@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * A system test that demonstrates how propagation settings affect transactional
  * execution.
  */
-
-// TODO-05: Review and run the testPropagation() method below.
 //
 //  It uses a transaction-manager to implement transactions manually
 //  and runs rewardAccountFor() within a transaction then performs a manual rollback.
