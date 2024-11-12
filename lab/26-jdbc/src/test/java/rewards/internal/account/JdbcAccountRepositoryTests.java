@@ -5,6 +5,7 @@ import common.money.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
 import javax.sql.DataSource;
@@ -21,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JdbcAccountRepositoryTests {
 
 	private JdbcAccountRepository repository;
-
 	private DataSource dataSource;
+
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		dataSource = createTestDataSource();
-		repository = new JdbcAccountRepository(dataSource);
+		this.dataSource = createTestDataSource();
+		repository = new JdbcAccountRepository(new JdbcTemplate(dataSource));
 	}
 
 	@Test
@@ -68,7 +69,7 @@ public class JdbcAccountRepositoryTests {
 
 	private void verifyBeneficiaryTableUpdated() throws SQLException {
 		String sql = "select SAVINGS from T_ACCOUNT_BENEFICIARY where NAME = ? and ACCOUNT_ID = ?";
-		PreparedStatement stmt = dataSource.getConnection().prepareStatement(sql);
+		PreparedStatement stmt = this.dataSource.getConnection().prepareStatement(sql);
 
 		// assert Annabelle has $4.00 savings now
 		stmt.setString(1, "Annabelle");

@@ -2,6 +2,8 @@ package rewards.internal.restaurant;
 
 import common.money.Percentage;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import rewards.Dining;
 import rewards.internal.account.Account;
 
@@ -22,7 +24,6 @@ import java.sql.SQLException;
 // - Refactor JdbcRestaurantRepositoryTests accordingly
 // - Run JdbcRestaurantRepositoryTests and verity it passes
 
-// TODO-04: Refactor the cumbersome low-level JDBC code to use JdbcTemplate.
 // - Run JdbcRestaurantRepositoryTests and verity it passes
 // - Add a field of type JdbcTemplate
 // - Refactor the code in the constructor to instantiate JdbcTemplate object
@@ -40,8 +41,11 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 
 	private DataSource dataSource;
 
+	private JdbcTemplate jdbcTemplate;
+
 	public JdbcRestaurantRepository(DataSource dataSource) {
 		this.dataSource = dataSource;
+		this.jdbcTemplate = new JdbcTemplate(this.dataSource);
 	}
 
 	public Restaurant findByMerchantNumber(String merchantNumber) {
@@ -49,15 +53,7 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 				+ " from T_RESTAURANT where MERCHANT_NUMBER = ?";
 		Restaurant restaurant = null;
 
-		try (Connection conn = dataSource.getConnection();
-			 PreparedStatement ps = conn.prepareStatement(sql) ){
-			ps.setString(1, merchantNumber);
-			ResultSet rs = ps.executeQuery();
-			advanceToNextRow(rs);
-			restaurant = mapRestaurant(rs);
-		} catch (SQLException e) {
-			throw new RuntimeException("SQL exception occurred finding by merchant number", e);
-		}
+		restaurant = jdbcTemplate.queryForObject(sql, new RestaurantRowmMapper(),merchantNumber);
 
 		return restaurant;
 	}
@@ -143,6 +139,18 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 
 		public String toString() {
 			return "neverAvailable";
+		}
+	}
+
+	private class RestaurantRowmMapper implements RowMapper<Restaurant> {
+		@Override
+		public Restaurant mapRow(ResultSet rs, int row) throws SQLException {
+			/*"select MERCHANT_NUMBER, NAME, BENEFIT_PERCENTAGE, BENEFIT_AVAILABILITY_POLICY"
+					+ " from T_RESTAURANT where MERCHANT_NUMBER = ?";*//*
+			Restaurant restaurant = new Restaurant(rs.getString("MERCHANT_NUMBER"),rs.getString("NAME"));
+			restaurant.setBenefitPercentage(Percentage.valueOf(rs.getString("BENEFIT_PERCENTAGE")));
+			//restaurant.setBenefitAvailabilityPolicy(BenefitAvailabilityPolicy);*/
+			return mapRestaurant(rs);
 		}
 	}
 }
