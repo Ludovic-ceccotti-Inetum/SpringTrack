@@ -2,7 +2,11 @@ package accounts.client;
 
 import common.money.Percentage;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import rewards.internal.account.Account;
@@ -14,7 +18,6 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// TODO-00: In this lab, you are going to exercise the following:
 // - Using @SpringBootTest and webEnvironment for end-to-end testing
 //   (You are going to refactor the test code of previous lab of "38-rest-ws"
 //    to use Spring Boot test framework.)
@@ -24,15 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
 // - Using MockMvc for Web slice testing
 // - Understanding the difference between @MockBean and @Mock
 
-// TODO-01: Make this class a Spring Boot test class
 // - Add @SpringBootTest annotation with WebEnvironment.RANDOM_PORT
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AccountClientTests {
 
-	// TODO-02: Autowire TestRestTemplate bean to a field
-	// - Name the field as restTemplate
-
-	// TODO-03: Update code below to use TestRestTemplate (as opposed to RestTemplate)
+	@Autowired
+	private TestRestTemplate restTemplate;
 	// - Remove RestTemplate from this code
 	// - Remove BASE_URL from this code or change the value of it to ""
 	// - Run the tests and observe that they pass except
@@ -44,17 +44,16 @@ public class AccountClientTests {
 	 * server URL ending with the servlet mapping on which the application can be
 	 * reached.
 	 */
-	private static final String BASE_URL = "http://localhost:8080";
 
-	private RestTemplate restTemplate = new RestTemplate();
 	private Random random = new Random();
 
 	@Test
 	public void listAccounts() {
-		String url = BASE_URL + "/accounts";
 		// we have to use Account[] instead of List<Account>, or Jackson won't know what
 		// type to unmarshal to
-		Account[] accounts = restTemplate.getForObject(url, Account[].class);
+
+		//Account[] accounts = restTemplate.getForObject(url, Account[].class);
+		Account[] accounts = restTemplate.getForObject( "/accounts", Account[].class);
 		assertThat(accounts.length >= 21).isTrue();
 		assertThat(accounts[0].getName()).isEqualTo("Keith and Keri Donald");
 		assertThat(accounts[0].getBeneficiaries().size()).isEqualTo(2);
@@ -63,7 +62,7 @@ public class AccountClientTests {
 
 	@Test
 	public void getAccount() {
-		String url = BASE_URL + "/accounts/{accountId}";
+		String url = "/accounts/{accountId}";
 		Account account = restTemplate.getForObject(url, Account.class, 0);
 		assertThat(account.getName()).isEqualTo("Keith and Keri Donald");
 		assertThat(account.getBeneficiaries().size()).isEqualTo(2);
@@ -72,7 +71,7 @@ public class AccountClientTests {
 
 	@Test
 	public void createAccount() {
-		String url = BASE_URL + "/accounts";
+		String url = "/accounts";
 		// use a random account number to avoid conflict
 		String number = String.format("12345%4d", random.nextInt(10000));
 		Account account = new Account(number, "John Doe");
@@ -101,18 +100,15 @@ public class AccountClientTests {
 	@Test
 	public void addAndDeleteBeneficiary() {
 		// perform both add and delete to avoid issues with side effects
-		String addUrl = BASE_URL + "/accounts/{accountId}/beneficiaries";
+		String addUrl = "/accounts/{accountId}/beneficiaries";
 		URI newBeneficiaryLocation = restTemplate.postForLocation(addUrl, "David", 1);
 		Beneficiary newBeneficiary = restTemplate.getForObject(newBeneficiaryLocation, Beneficiary.class);
 		assertThat(newBeneficiary.getName()).isEqualTo("David");
 
 		restTemplate.delete(newBeneficiaryLocation);
-
-		HttpClientErrorException httpClientErrorException = assertThrows(HttpClientErrorException.class, () -> {
-			System.out.println("You SHOULD get the exception \"No such beneficiary with name 'David'\" in the server.");
-			restTemplate.getForObject(newBeneficiaryLocation, Beneficiary.class);
-		});
-		assertThat(httpClientErrorException.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		// No excpetion because TestRestTemplate is fault tolerant
+		ResponseEntity<Beneficiary> response = restTemplate.getForEntity(newBeneficiaryLocation, Beneficiary.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 
 	// TODO-05: Observe a log message in the console indicating
