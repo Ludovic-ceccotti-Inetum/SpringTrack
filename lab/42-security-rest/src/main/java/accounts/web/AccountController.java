@@ -56,6 +56,7 @@ public class AccountController {
 	 */
 	@GetMapping(value = "/accounts/{id}")
 	public Account accountDetails(@PathVariable int id) {
+		System.out.println("/********************" + id + "************/");
 		return retrieveAccount(id);
 	}
 
@@ -161,6 +162,7 @@ public class AccountController {
 	 * if there is no such Account.
 	 */
 	private Account retrieveAccount(long accountId) throws IllegalArgumentException {
+		System.out.println("***********here**********");
 		Account account = accountManager.getAccount(accountId);
 		if (account == null) {
 			throw new IllegalArgumentException("No such account with id " + accountId);

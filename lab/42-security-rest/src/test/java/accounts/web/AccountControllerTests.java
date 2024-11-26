@@ -27,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// TODO-06a: Perform security testing against MVC layer
 // - Take some time to understand what each test is for
 // - Remove @Disabled annotation from each test and run it
 // - Make sure all tests pass
@@ -46,7 +45,7 @@ public class AccountControllerTests {
     private AccountService accountService;
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"INVALID"})
     void accountSummary_with_invalid_role_should_return_403() throws Exception {
 
@@ -55,7 +54,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser( roles = {"USER"})
     public void accountDetails_with_USER_role_should_return_200() throws Exception {
 
@@ -74,7 +73,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(username = "user", password = "user")
     public void accountDetails_with_user_credentials_should_return_200() throws Exception {
 
@@ -93,7 +92,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(username = "admin", password = "admin")
     public void accountDetails_with_admin_credentials_should_return_200() throws Exception {
 
@@ -112,7 +111,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(username = "superadmin", password = "superadmin")
     public void accountDetails_with_superadmin_credentials_should_return_200() throws Exception {
 
@@ -132,7 +131,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"USER"})
     public void accountDetailsFail_test_with_USER_role_should_proceed_successfully() throws Exception {
 
@@ -147,7 +146,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"ADMIN"})
     public void accountSummary_with_ADMIN_role_should_return_200() throws Exception {
 
@@ -165,7 +164,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"ADMIN", "SUPERADMIN"})
     public void createAccount_with_ADMIN_or_SUPERADMIN_role_should_return_201() throws Exception {
 
@@ -183,22 +182,27 @@ public class AccountControllerTests {
 
     }
 
-    // TODO-06b: Write a test that verifies that a user with "USER" role
-    //          is not permitted to perform POST operation
     // - Use the code above (in the previous test) as a guidance
     //   but without using "given" and "verify" methods.
     //   (The "given" and "verify" methods are not required for
     //    this testing because security failure will prevent
     //    calling a method of a dependency.)
     @Test
+    @WithMockUser(roles = {"USER"})
     public void createAccount_with_USER_role_should_return_403() throws Exception {
 
+        Account testAccount = new Account("1234512345", "Mary Jones");
+        testAccount.setEntityId(21L);
 
+        mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(testAccount))
+        ).andExpect(status().isForbidden());
 
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"SUPERADMIN"})
     public void getBeneficiary_with_SUPERADMIN_role_should_return_200() throws Exception {
 
@@ -216,7 +220,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"ADMIN", "SUPERADMIN"})
     public void addBeneficiary_with_ADMIN_or_SUPERADMIN_role_should_return_201() throws Exception {
 
@@ -226,7 +230,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"USER"})
     public void addBeneficiary_with_USER_role_should_return_403() throws Exception {
 
@@ -235,7 +239,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"SUPERADMIN"})
     public void removeBeneficiary_with_SUPERADMIN_role_should_return_204() throws Exception {
 
@@ -251,7 +255,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"USER", "ADMIN"})
     public void removeBeneficiary_with_USER_or_ADMIN_role_should_return_403() throws Exception {
 
@@ -265,7 +269,7 @@ public class AccountControllerTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithMockUser(roles = {"SUPERADMIN"})
     public void removeBeneficiaryFail_test_with_SUPERADMIN_role_should_proceed_successfully() throws Exception {
         Account account = new Account("1234567890", "John Doe");

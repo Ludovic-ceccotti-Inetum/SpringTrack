@@ -7,20 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import accounts.security.CustomUserDetailsService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import accounts.AccountManager;
 import accounts.RestWsApplication;
-import accounts.security.CustomUserDetailsService;
 import accounts.services.AccountService;
 import config.RestSecurityConfig;
 import rewards.internal.account.Account;
@@ -45,7 +44,7 @@ public class AccountControllerCustomUserDetailsServiceTests {
     private AccountService accountService;
 
     @Test
-    @Disabled
+    //@Disabled
     @WithUserDetails("joe")
     public void accountDetails_with_joe_credentials_should_return_200() throws Exception {
 
@@ -63,7 +62,7 @@ public class AccountControllerCustomUserDetailsServiceTests {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     @WithUserDetails("mary")
     public void accountDetails_with_mary_credentials_should_return_200() throws Exception {
 
